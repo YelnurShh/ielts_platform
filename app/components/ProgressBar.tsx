@@ -1,0 +1,1 @@
+export function ProgressBar({value,label}:{value:number;label?:string}){return <div>{label&&<div className="flex justify-between text-xs font-semibold mb-2"><span>{label}</span><span className="text-[#667085]">{value}%</span></div>}<div className="progress-track"><div className="progress-fill" style={{width:`${Math.min(100,Math.max(0,value))}%`}}/></div></div>}
