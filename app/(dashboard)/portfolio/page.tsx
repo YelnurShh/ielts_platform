@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { FileText, TrendingUp, Clock3 } from "lucide-react";
 import { useAuth } from "@/app/providers/auth";
+import { useLocale } from "@/app/providers/locale";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { lessons } from "../../../lib/course";
 
@@ -15,6 +16,7 @@ interface PortfolioItem {
 
 export default function Portfolio() {
   const { user } = useAuth();
+  const { t } = useLocale();
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [studyTime, setStudyTime] = useState("0h 0m");
   const [criteria, setCriteria] = useState<{ name: string; value: number }[]>([]);
@@ -53,29 +55,29 @@ export default function Portfolio() {
 
   return (
     <div className="container-wide py-10">
-      <div className="eyebrow">WRITING PORTFOLIO</div>
-      <h1 className="text-4xl font-black mt-2">My writing</h1>
-      <p className="text-[#667085] mt-2">First Draft → Feedback → Rewrite → Final Version тарихы.</p>
+      <div className="eyebrow">{t.portfolio.eyebrow}</div>
+      <h1 className="text-4xl font-black mt-2">{t.portfolio.title}</h1>
+      <p className="text-[#667085] mt-2">{t.portfolio.subtitle}</p>
 
       <div className="grid md:grid-cols-3 gap-4 mt-7">
         <div className="card p-5">
-          <div className="text-sm text-[#667085]">Essays</div>
+          <div className="text-sm text-[#667085]">{t.portfolio.essays}</div>
           <div className="text-3xl font-black mt-3">{completedLessonDetails.length}</div>
         </div>
         <div className="card p-5">
-          <div className="text-sm text-[#667085]">Best improvement</div>
+          <div className="text-sm text-[#667085]">{t.portfolio.bestImprovement}</div>
           <div className="text-3xl font-black mt-3">{improvementLabel}</div>
         </div>
         <div className="card p-5">
-          <div className="text-sm text-[#667085]">Practice time</div>
+          <div className="text-sm text-[#667085]">{t.portfolio.practiceTime}</div>
           <div className="text-3xl font-black mt-3">{studyTime}</div>
         </div>
       </div>
 
       <div className="card mt-6 overflow-hidden">
-        <div className="p-6 border-b border-[#e6e8ee] font-extrabold">Essay history</div>
+        <div className="p-6 border-b border-[#e6e8ee] font-extrabold">{t.portfolio.essayHistory}</div>
         {completedLessonDetails.length === 0 ? (
-          <div className="p-6 text-center text-[#667085]">Әлі эсселер жоқ. Сабақтарды аяқтаңыз!</div>
+          <div className="p-6 text-center text-[#667085]">{t.portfolio.noEssays}</div>
         ) : (
           completedLessonDetails.map((lesson) => (
             <div key={lesson.id} className="p-5 border-b last:border-0 border-[#e6e8ee] flex items-center justify-between gap-4">
@@ -89,10 +91,10 @@ export default function Portfolio() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-extrabold">Lesson {lesson.id}</div>
+                <div className="font-extrabold">{t.lessons.lesson} {lesson.id}</div>
                 <div className="text-xs text-[#667085] mt-1 inline-flex items-center gap-1">
                   <TrendingUp size={13} />
-                  Аяқталған
+                  {t.portfolio.improvement}
                 </div>
               </div>
             </div>

@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { GraduationCap, ShieldCheck, User, LogIn } from "lucide-react";
 import { useAuth } from "@/app/providers/auth";
 import { UserRole } from "@/lib/auth";
+import { useLocale } from "@/app/providers/locale";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading, signInWithGoogle, setRole } = useAuth();
+  const { t, locale, setLocale } = useLocale();
   const [selectedRole, setSelectedRole] = useState<UserRole>("student");
   const [needsRole, setNeedsRole] = useState(false);
   const [error, setError] = useState("");
@@ -19,16 +21,16 @@ export default function LoginPage() {
       setNeedsRole(false);
       router.push("/");
     } catch (err) {
-      setError("Рөлді сақтау қатесі.");
+      setError(t.login.roleError);
     }
-  }, [selectedRole, setRole, router]);
+  }, [selectedRole, setRole, router, t]);
 
   const handleGoogleSignIn = async () => {
     try {
       setError("");
       await signInWithGoogle();
     } catch (err) {
-      setError("Google арқылы кіру қатесі. Қайталап көріңіз.");
+      setError(t.login.error);
     }
   };
 
@@ -58,9 +60,9 @@ export default function LoginPage() {
           <div className="h-12 w-12 rounded-2xl bg-[#111827] text-white grid place-items-center">
             <GraduationCap size={24} />
           </div>
-          <h1 className="text-3xl font-black mt-5">Қош келдіңіз!</h1>
+          <h1 className="text-3xl font-black mt-5">{t.login.welcome}</h1>
           <p className="text-[#667085] mt-2">{user.displayName || user.email}</p>
-          <p className="text-sm text-[#667085] mt-1">Рөліңізді таңдаңыз:</p>
+          <p className="text-sm text-[#667085] mt-1">{t.login.selectRole}</p>
           <div className="grid grid-cols-2 gap-2 mt-5">
             {(["student", "teacher"] as UserRole[]).map((r) => (
               <button
@@ -73,12 +75,12 @@ export default function LoginPage() {
                 }`}
               >
                 {r === "teacher" ? <ShieldCheck size={18} /> : <User size={18} />}
-                {r === "teacher" ? "Мұғалім" : "Оқушы"}
+                {r === "teacher" ? t.login.teacher : t.login.student}
               </button>
             ))}
           </div>
           <button onClick={handleRoleSelect} className="mt-5 w-full rounded-xl bg-[#111827] text-white py-3.5 font-bold">
-            Жалғастыру
+            {t.login.continue}
           </button>
         </div>
       </div>
@@ -91,10 +93,8 @@ export default function LoginPage() {
         <div className="h-12 w-12 rounded-2xl bg-[#111827] text-white grid place-items-center">
           <GraduationCap size={24} />
         </div>
-        <h1 className="text-3xl font-black mt-5">Қош келдіңіз</h1>
-        <p className="text-[#667085] mt-2">
-          IELTS Writing Mastery-ға кіру үшін Google аккаунтыңызбен кіріңіз
-        </p>
+        <h1 className="text-3xl font-black mt-5">{t.login.title}</h1>
+        <p className="text-[#667085] mt-2">{t.login.subtitle}</p>
         {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
         <button
           onClick={handleGoogleSignIn}
@@ -118,7 +118,7 @@ export default function LoginPage() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Google арқылы кіру
+          {t.login.googleBtn}
         </button>
       </div>
     </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Check, Lock, PlayCircle, Search } from "lucide-react";
 import { lessons, units } from "../../../lib/course";
 import { useAuth } from "../../../app/providers/auth";
+import { useLocale } from "../../../app/providers/locale";
 
 interface LessonWithStatus {
   id: number;
@@ -18,6 +19,7 @@ interface LessonWithStatus {
 
 export default function Lessons() {
   const { user } = useAuth();
+  const { t } = useLocale();
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterUnit, setFilterUnit] = useState<string>("all");
@@ -39,7 +41,7 @@ export default function Lessons() {
     fetchProgress();
   }, [user]);
 
-  const getLessonStatus = (lessonId: number, unitTitle: string, lessonIndex: number, unitLessonsCount: number): "completed" | "available" | "locked" => {
+  const getLessonStatus = (lessonId: number, unitTitle: string): "completed" | "available" | "locked" => {
     if (completedLessons.includes(lessonId)) {
       return "completed";
     }
@@ -61,14 +63,9 @@ export default function Lessons() {
   };
 
   const lessonsWithStatus: LessonWithStatus[] = lessons.map((lesson) => {
-    const unit = units.find((u) => u.title === lesson.unit);
-    const unitLessons = lessons.filter((l) => l.unit === lesson.unit);
-    const sortedUnitLessons = [...unitLessons].sort((a, b) => a.id - b.id);
-    const lessonIndex = sortedUnitLessons.findIndex((l) => l.id === lesson.id);
-
     return {
       ...lesson,
-      status: getLessonStatus(lesson.id, lesson.unit, lessonIndex, unitLessons.length),
+      status: getLessonStatus(lesson.id, lesson.unit),
     };
   });
 
@@ -108,18 +105,16 @@ export default function Lessons() {
     <div className="container-wide py-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
         <div>
-          <div className="eyebrow">COURSE</div>
-          <h1 className="text-4xl font-black mt-2">Сабақтар</h1>
-          <p className="text-[#667085] mt-2 max-w-2xl">
-            Құжаттағы 34 сабақтық құрылым сақталған. Қазір бастапқы сабақтар дайын, қалғандарын осы каталогқа қоса аласыз.
-          </p>
+          <div className="eyebrow">{t.lessons.eyebrow}</div>
+          <h1 className="text-4xl font-black mt-2">{t.lessons.title}</h1>
+          <p className="text-[#667085] mt-2 max-w-2xl">{t.lessons.subtitle}</p>
         </div>
         {continueLesson && (
           <Link
             href={`/lessons/${continueLesson.id}`}
             className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#111827] text-white font-bold"
           >
-            Жалғастыру <ArrowRight size={18} />
+            {t.lessons.startLesson} <ArrowRight size={18} />
           </Link>
         )}
       </div>
@@ -127,26 +122,26 @@ export default function Lessons() {
       <div className="mt-8 card p-5">
         <div className="grid md:grid-cols-3 gap-4">
           <div className="md:col-span-1">
-            <label className="block text-sm font-bold mb-2">Іздеу</label>
+            <label className="block text-sm font-bold mb-2">{t.ui.search}</label>
             <div className="relative">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Сабақ іздеу..."
+                placeholder={t.lessons.searchPlaceholder}
                 className="w-full rounded-xl border border-[#e6e8ee] pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#4f46e5]"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold mb-2">Unit</label>
+            <label className="block text-sm font-bold mb-2">{t.lessons.unitFilter}</label>
             <select
               value={filterUnit}
               onChange={(e) => setFilterUnit(e.target.value)}
               className="w-full rounded-xl border border-[#e6e8ee] px-4 py-2.5 text-sm outline-none focus:border-[#4f46e5]"
             >
-              <option value="all">Барлығы</option>
+              <option value="all">{t.ui.all}</option>
               {units.map((u) => (
                 <option key={u.id} value={u.title}>
                   Unit {u.id}: {u.title}
@@ -155,16 +150,16 @@ export default function Lessons() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-bold mb-2">Күйі</label>
+            <label className="block text-sm font-bold mb-2">{t.lessons.statusFilter}</label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="w-full rounded-xl border border-[#e6e8ee] px-4 py-2.5 text-sm outline-none focus:border-[#4f46e5]"
             >
-              <option value="all">Барлығы</option>
-              <option value="available">Қолжетімді</option>
-              <option value="completed">Аяқталған</option>
-              <option value="locked">Жабық</option>
+              <option value="all">{t.ui.all}</option>
+              <option value="available">{t.lessons.available}</option>
+              <option value="completed">{t.lessons.completed}</option>
+              <option value="locked">{t.lessons.locked}</option>
             </select>
           </div>
         </div>
@@ -188,7 +183,7 @@ export default function Lessons() {
               </div>
               {unitLessons.length === 0 ? (
                 <div className="card-soft p-5 text-sm text-[#667085]">
-                  Бұл unit үшін сабақтар каталогы дайын — контент кейін осы дерек моделіне қосылады.
+                  {t.lessons.noUnitLessons}
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 gap-4">
@@ -207,21 +202,21 @@ export default function Lessons() {
                           {l.status === "completed" ? (
                             <>
                               <Check size={14} className="mr-1" />
-                              Аяқталды
+                              {t.lessons.completed}
                             </>
                           ) : l.status === "available" ? (
                             <>
                               <PlayCircle size={14} className="mr-1" />
-                              Қолжетімді
+                              {t.lessons.available}
                             </>
                           ) : (
                             <>
                               <Lock size={14} className="mr-1" />
-                              Жабық
+                              {t.lessons.locked}
                             </>
                           )}
                         </span>
-                        <span className="text-xs text-[#667085]">Lesson {l.id}</span>
+                        <span className="text-xs text-[#667085]">{t.lessons.lesson} {l.id}</span>
                       </div>
                       <h3 className="font-extrabold text-lg mt-5">{l.title}</h3>
                       <p className="text-sm text-[#667085] mt-2 leading-6">{l.summary}</p>
@@ -235,17 +230,17 @@ export default function Lessons() {
                       {l.status === "available" || l.status === "completed" ? (
                         <div className="mt-5 flex items-center gap-3">
                           <Link href={`/lessons/${l.id}`} className="inline-flex items-center gap-2 text-sm font-bold text-[#4f46e5]">
-                            {l.status === "completed" ? "Қайталап көру" : "Сабақты бастау"}
+                            {l.status === "completed" ? t.lessons.retry : t.lessons.startLesson}
                             <ArrowRight size={15} />
                           </Link>
                           {l.status === "completed" && (
-                            <span className="text-xs text-[#139a63] font-semibold">✓ Аяқталған</span>
+                            <span className="text-xs text-[#139a63] font-semibold">{t.lessons.completedBadge}</span>
                           )}
                         </div>
                       ) : (
                         <div className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#98a2b3]">
                           <Lock size={15} />
-                          Алдыңғы сабақты аяқтаңыз
+                          {t.lessons.unlockMessage}
                         </div>
                       )}
                     </div>
